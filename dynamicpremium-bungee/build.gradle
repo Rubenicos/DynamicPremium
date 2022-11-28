@@ -1,0 +1,37 @@
+plugins {
+    id 'com.github.johnrengelman.shadow'
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    from(sourceSets.main.resources.srcDirs) {
+        include 'bungee.yml'
+        expand(project.properties)
+    }
+}
+
+repositories {
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven {
+        url 'http://ptms.ink:8081/repository/releases/'
+        allowInsecureProtocol true
+    }
+}
+
+dependencies {
+    implementation project(':dynamicpremium-commons')
+    implementation 'mysql:mysql-connector-java:8.0.28'
+    compileOnly 'net.md-5:bungeecord-api:1.19-R0.1-SNAPSHOT'
+    compileOnly 'net.md_5.bungee:BungeeCord:1'
+
+    compileOnly fileTree(dir: 'libs', includes: ['*.jar'])
+}
+
+jar {
+    enabled = false
+    dependsOn (shadowJar)
+}
+
+shadowJar {
+    archiveClassifier.set('')
+}

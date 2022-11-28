@@ -1,0 +1,32 @@
+plugins {
+    id 'net.kyori.blossom' version '1.3.0'
+    id 'com.github.johnrengelman.shadow'
+}
+
+blossom {
+    replaceTokenIn('src/main/java/me/gatogamer/dynamicpremium/velocity/DynamicPremium.java')
+    replaceToken '${version}', project.version
+}
+
+repositories {
+    maven { url 'https://papermc.io/repo/repository/maven-public/' }
+}
+
+dependencies {
+    implementation project(':dynamicpremium-commons')
+    compileOnly 'com.velocitypowered:velocity-api:3.1.1'
+    annotationProcessor 'com.velocitypowered:velocity-api:3.1.1'
+}
+
+compileJava {
+    options.release = 11
+}
+
+jar {
+    enabled = false
+    dependsOn (shadowJar)
+}
+
+shadowJar {
+    archiveClassifier.set('')
+}

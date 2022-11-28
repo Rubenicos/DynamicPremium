@@ -1,5 +1,5 @@
 name: DynamicPremium
-version: '${project.version}'
+version: '${version}'
 main: me.gatogamer.dynamicpremium.spigot.DynamicPremium
 authors: [ gatogamer ]
 description: The simplest /premium plugin ever.

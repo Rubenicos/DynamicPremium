@@ -1,0 +1,9 @@
+rootProject.name = 'DynamicPremium'
+
+include(
+	'dynamicpremium-commons',
+	'dynamicpremium-velocity',
+	'dynamicpremium-spigot',
+	'dynamicpremium-bungee',
+	'dynamicpremium-multiplatform'
+	)

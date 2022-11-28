@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
         id = "dynamicpremium",
         name = "DynamicPremium",
         authors = "gatogamer_",
-        version = "${project.version}",
+        version = "${version}",
         description = "The simplest /premium plugin ever."
 )
 @Getter

@@ -1,5 +1,5 @@
 name: DynamicPremium
-version: ${project.version}
+version: ${version}
 main: me.gatogamer.dynamicpremium.bungee.DynamicPremium
 description: The simplest /premium plugin ever.
 author: "gatogamer_ (Dilan)"
