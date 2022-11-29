@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -68,9 +67,11 @@ public class UUIDUtils {
                                 .insert(8, '-')
                                 .toString()
                         ));
+                        return;
                     } else if (s.contains("-") && s.length() == 36) {
                         // UUID with slashes
                         CACHE.put(name, UUID.fromString(s));
+                        return;
                     }
                 }
             }
