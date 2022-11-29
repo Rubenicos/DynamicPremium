@@ -14,6 +14,10 @@ public class CacheManager {
         });
     }
 
+    public Cache getCache(String username) {
+        return cacheMap.get(username);
+    }
+
     public Cache getOrCreateCache(String username) {
         return cacheMap.computeIfAbsent(username, Cache::new);
     }

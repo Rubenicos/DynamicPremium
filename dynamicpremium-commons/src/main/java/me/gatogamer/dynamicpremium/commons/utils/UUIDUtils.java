@@ -1,9 +1,15 @@
 package me.gatogamer.dynamicpremium.commons.utils;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This code has been created by
@@ -14,22 +20,61 @@ import java.net.URLConnection;
  */
 public class UUIDUtils {
 
-    public static String getOnlineUUID(String name) {
-        String onlineUUID = null;
-        try {
-            URLConnection connection = (new URL("https://api.mojang.com/users/profiles/minecraft/" + name)).openConnection();
-            connection.setDoOutput(true);
-            connection.connect();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            StringBuilder response = new StringBuilder();
-            String inputLine;
-            while ((inputLine = bufferedReader.readLine()) != null)
-                response.append(inputLine).append("\n");
-            bufferedReader.close();
-            onlineUUID = response.toString();
-        } catch (Exception exception) {
+    private static final String USER_API = "https://api.mojang.com/users/profiles/minecraft/";
+    // "id":" <UUID> "
+    private static final String UUID_START = "\"id\":\"";
+    private static final String UUID_END = "\"";
+    private static final Cache<String, Object> CACHE = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
+
+    public static UUID getOnlineUUID(String name) {
+        Object object = CACHE.getIfPresent(name);
+        if (object == null) {
+            computeUUID(name);
+            object = CACHE.getIfPresent(name);
         }
-        return onlineUUID;
+        if (object instanceof UUID) {
+            return (UUID) object;
+        } else {
+            return null;
+        }
     }
 
+    public static boolean isPremium(String name) {
+        return getOnlineUUID(name) != null;
+    }
+
+    private static void computeUUID(String name) {
+        try (InputStream in = new URL(USER_API + name).openStream(); BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+            final StringBuilder out = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                out.append(line);
+            }
+
+            String s = out.toString();
+            int index = s.indexOf(UUID_START);
+            final int begin;
+            if (index >= 0 && (begin = index + UUID_START.length()) < s.length()) {
+                s = s.substring(begin);
+                index = s.indexOf(UUID_END);
+                if (index > 0) {
+                    s = s.substring(0, index).trim();
+                    if (s.length() == 32) {
+                        // UUID without slashes
+                        CACHE.put(name, UUID.fromString(new StringBuilder(s)
+                                .insert(20, '-')
+                                .insert(16, '-')
+                                .insert(12, '-')
+                                .insert(8, '-')
+                                .toString()
+                        ));
+                    } else if (s.contains("-") && s.length() == 36) {
+                        // UUID with slashes
+                        CACHE.put(name, UUID.fromString(s));
+                    }
+                }
+            }
+        } catch (Throwable ignored) { }
+        CACHE.put(name, false);
+    }
 }

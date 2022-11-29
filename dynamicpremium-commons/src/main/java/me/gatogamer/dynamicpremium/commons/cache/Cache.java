@@ -17,6 +17,7 @@ public class Cache {
     private boolean pendingVerification = false;
     private boolean onVerification = false;
     private boolean premium = false;
+    private boolean fullPremium = false;
     // BungeeCord ends \\
 
     //Spigot starts \\

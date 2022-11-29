@@ -3,7 +3,6 @@ package me.gatogamer.dynamicpremium.bungee.imports;
 import lombok.Getter;
 import lombok.Setter;
 import me.gatogamer.dynamicpremium.bungee.DynamicPremium;
-import me.gatogamer.dynamicpremium.bungee.config.ConfigUtils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.config.Configuration;
@@ -52,7 +51,7 @@ public class FastLoginImport {
                         ProxyServer.getInstance().getConsole().sendMessage(c( "&cFastLogin Import -> &7Checking if "+name+ " is premium."));
                         if (rs.getInt("Premium") == 1) {
                             ProxyServer.getInstance().getConsole().sendMessage(c("&cFastLogin Import -> &7Yes, "+name+ " is premium."));
-                            DynamicPremium.getInstance().getDatabaseManager().getDatabase().addPlayer(name);
+                            DynamicPremium.getInstance().getDatabaseManager().getDatabase().updatePlayer(name);
                             ProxyServer.getInstance().getConsole().sendMessage(c("&cFastLogin Import -> "+name+ " has been added."));
                         } else {
                             ProxyServer.getInstance().getConsole().sendMessage(c("&cFastLogin Import -> &7Nop, "+name+ " isn't premium."));

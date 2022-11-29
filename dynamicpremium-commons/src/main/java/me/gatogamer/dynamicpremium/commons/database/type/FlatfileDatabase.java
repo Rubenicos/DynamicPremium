@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import me.gatogamer.dynamicpremium.commons.config.IConfigParser;
 import me.gatogamer.dynamicpremium.commons.database.Database;
 import me.gatogamer.dynamicpremium.commons.database.DatabaseManager;
+import me.gatogamer.dynamicpremium.commons.database.PlayerState;
 
 import java.io.File;
 
@@ -30,7 +31,7 @@ public class FlatfileDatabase implements Database {
 
     @SneakyThrows
     @Override
-    public void addPlayer(String name) {
+    public void updatePlayer(String name, PlayerState state) {
         getFile(name).createNewFile();
     }
 

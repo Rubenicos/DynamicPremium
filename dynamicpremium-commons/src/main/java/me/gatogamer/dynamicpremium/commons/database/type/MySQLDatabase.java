@@ -5,6 +5,7 @@ import lombok.Setter;
 import me.gatogamer.dynamicpremium.commons.config.IConfigParser;
 import me.gatogamer.dynamicpremium.commons.database.Database;
 import me.gatogamer.dynamicpremium.commons.database.DatabaseManager;
+import me.gatogamer.dynamicpremium.commons.database.PlayerState;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -37,7 +38,8 @@ public class MySQLDatabase implements Database {
 
             connection = DriverManager.getConnection("jdbc:mysql://" + iConfigParser.getString("MySQL.Host") + ":" + iConfigParser.getString("MySQL.Port") + "/" + iConfigParser.getString("MySQL.Database"), properties);
             update("CREATE TABLE IF NOT EXISTS PremiumUsers (PlayerName VARCHAR(100), Enabled VARCHAR(100))");
-            update("CREATE UNIQUE INDEX premiumIndex ON PremiumUsers (PlayerName, Enabled)");
+            update("ALTER TABLE PremiumUsers ADD COLUMN Full VARCHAR(100) AFTER Enabled");
+            update("CREATE UNIQUE INDEX premiumIndex ON PremiumUsers (PlayerName, Enabled, Full)");
             System.out.println("DynamicPremium > Connected to MySQL!");
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,13 +49,41 @@ public class MySQLDatabase implements Database {
     }
 
     @Override
+    public PlayerState playerState(String name) {
+        try {
+            ResultSet rs = query("SELECT * FROM PremiumUsers WHERE PlayerName='" + name + "'");
+            if (rs.next() && rs.getString("PlayerName") != null) {
+                String enabled = rs.getString("Enabled");
+                if (enabled != null && enabled.equalsIgnoreCase("true")) {
+                    String full = rs.getString("Full");
+                    if (full != null && full.equalsIgnoreCase("true")) {
+                        return PlayerState.FULL_PREMIUM;
+                    } else {
+                        return PlayerState.PREMIUM;
+                    }
+                }
+            }
+        } catch (SQLException ignored) { }
+        return PlayerState.NO_PREMIUM;
+    }
+
+    @Override
     public boolean playerIsPremium(String name) {
         return userExist(name);
     }
 
     @Override
-    public void addPlayer(String name) {
+    public void updatePlayer(String name) {
         createUser(name);
+    }
+
+    @Override
+    public void updatePlayer(String name, PlayerState state) {
+        if (state == PlayerState.NO_PREMIUM) {
+            removePlayer(name);
+        } else {
+            createUser(name, state == PlayerState.FULL_PREMIUM);
+        }
     }
 
     @Override
@@ -100,6 +130,17 @@ public class MySQLDatabase implements Database {
         } catch (SQLException e) {
             return false;
         }
+        //try (Statement stmt = connection.createStatement()) {
+        //    stmt.executeQuery("SELECT * FROM PremiumUsers WHERE PlayerName='" + name + "'");
+        //    ResultSet rs = stmt.getResultSet();
+        //    return (rs.next() && rs.getString("PlayerName") != null);
+        //} catch (Throwable t) {
+        //    System.out.println("Ha ocurrido un error I/O información:");
+        //    System.out.println("---------------------------------------------------------------");
+        //    t.printStackTrace();
+        //    System.out.println("---------------------------------------------------------------");
+        //}
+        //return false;
     }
 
     /**
@@ -108,8 +149,20 @@ public class MySQLDatabase implements Database {
      * @param name The player name.
      */
     public void createUser(String name) {
-        if (!userExist(name)) {
-            update("INSERT INTO PremiumUsers (PlayerName, Enabled) VALUES ('" + name + "', 'true')");
+        createUser(name, false);
+    }
+
+    /**
+     * Creates a new user in MySQL.
+     *
+     * @param name The player name.
+     * @param full True if the player as full premium state.
+     */
+    public void createUser(String name, boolean full) {
+        if (userExist(name)) {
+            update("UPDATE PremiumUsers SET Enabled = 'true', Full = '" + full + "' WHERE PlayerName = '" + name + "'");
+        } else {
+            update("INSERT INTO PremiumUsers (PlayerName, Enabled, Full) VALUES ('" + name + "', 'true', '" + full + "')");
         }
     }
 

@@ -50,6 +50,7 @@ PremiumCommandDelay: 60000 #Millis
 UUIDMode: PREMIUM #UUID modes available: PREMIUM, NO_PREMIUM.
 Alert:
   NoPremium: "&c¡Debes ser premium para hacer esto! (esto puede ser un error por RateLimit de Mojang)"
+  FullPremium: "&c&l¡CUIDADO! &6Si te conviertes en full premium perderás tus datos en las modalidades donde hayas jugado, vuelva a usar el comando para confirmar"
   PlayerOnly: "&c¡Debes ser un usuario para hacer esto!"
   Enabled: "&a¡Has activado el modo premium!"
   Disabled: "&a¡Has desactivado el modo premium!"
@@ -68,11 +69,15 @@ Admin:
     - ""
     - "&cAdmin commands:"
     - "&c/premiumadmin toggle <jugador> &4- &7Activas/desactivas el modo premium de otro jugador."
+    - "&c/premiumadmin full <jugador> &4- &7Activas/desactivas el modo premium full de otro jugador."
     - ""
   No Permission: "&c¡No tienes permiso!"
   Toggled:
     Enabled: "&a¡Has activado el modo premium a %player%!"
     Disabled: "&c¡Has desactivado el modo premium a %player%!"
+  Full:
+    Enabled: "&a¡Has activado el modo premium FULL a %player%!"
+    Disabled: "&c¡Has desactivado el modo premium FULL a %player%!"
 
 # This isn't important, but...
 # If you set this to DIRECT, you're forcing TO PREMIUM USERS to connect to the lobby direct. (If the lobby is down, the player will be not connected)

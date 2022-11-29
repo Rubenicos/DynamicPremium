@@ -6,9 +6,7 @@ import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
 import lombok.RequiredArgsConstructor;
 import me.gatogamer.dynamicpremium.commons.cache.Cache;
-import me.gatogamer.dynamicpremium.commons.cache.CacheManager;
 import me.gatogamer.dynamicpremium.commons.database.Database;
-import me.gatogamer.dynamicpremium.commons.database.DatabaseManager;
 import me.gatogamer.dynamicpremium.commons.utils.NyaUtils;
 import me.gatogamer.dynamicpremium.commons.utils.TimeUtils;
 import me.gatogamer.dynamicpremium.commons.utils.UUIDUtils;
@@ -46,10 +44,9 @@ public class PremiumCommand implements SimpleCommand {
                         return;
                     }
                     cache.setLastUsage(System.currentTimeMillis());
-                    String mojangId = UUIDUtils.getOnlineUUID(player.getUsername());
-                    if (mojangId != null) {
+                    if (UUIDUtils.isPremium(player.getUsername())) {
                         player.sendMessage(LegacyComponentSerializer.legacy('&').deserialize(config.getString("Alert.Enabled")));
-                        database.addPlayer(player.getUsername());
+                        database.updatePlayer(player.getUsername());
                     } else {
                         player.sendMessage(LegacyComponentSerializer.legacy('&').deserialize(config.getString("Alert.NoPremium")));
                     }

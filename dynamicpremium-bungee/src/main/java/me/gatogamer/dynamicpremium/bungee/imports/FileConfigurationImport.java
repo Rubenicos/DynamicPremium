@@ -1,7 +1,6 @@
 package me.gatogamer.dynamicpremium.bungee.imports;
 
 import me.gatogamer.dynamicpremium.bungee.DynamicPremium;
-import me.gatogamer.dynamicpremium.bungee.config.ConfigUtils;
 import me.gatogamer.dynamicpremium.commons.database.Database;
 import net.md_5.bungee.config.Configuration;
 
@@ -21,7 +20,7 @@ public class FileConfigurationImport {
 
         mainSettings.getStringList("PremiumUsers").forEach(s -> {
             if (!database.playerIsPremium(s)) {
-                database.addPlayer(s);
+                database.updatePlayer(s);
             }
         });
     }

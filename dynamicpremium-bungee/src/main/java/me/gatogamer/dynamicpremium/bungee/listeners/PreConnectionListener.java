@@ -6,6 +6,7 @@ import me.gatogamer.dynamicpremium.bungee.DynamicPremium;
 import me.gatogamer.dynamicpremium.bungee.api.event.NekoConnectionPreLoginEvent;
 import me.gatogamer.dynamicpremium.bungee.utils.Utils;
 import me.gatogamer.dynamicpremium.commons.cache.Cache;
+import me.gatogamer.dynamicpremium.commons.database.PlayerState;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.event.PreLoginEvent;
@@ -58,7 +59,7 @@ public class PreConnectionListener implements Listener {
             pendingConnection.setOnlineMode(true);
             cache.setOnVerification(true);
             cache.setPremium(true);
-            if (configuration.getString("UUIDMode").equalsIgnoreCase("NO_PREMIUM")) {
+            if (!cache.isFullPremium() && configuration.getString("UUIDMode").equalsIgnoreCase("NO_PREMIUM")) {
                 Utils.setUuid(pendingConnection, offlineUuid);
             }
             return;
@@ -68,10 +69,13 @@ public class PreConnectionListener implements Listener {
 
         try {
             dynamicPremium.getProxy().getScheduler().runAsync(dynamicPremium, () -> {
-                if (dynamicPremium.getDatabaseManager().getDatabase().playerIsPremium(pendingConnection.getName())) {
+                PlayerState state = dynamicPremium.getDatabaseManager().getDatabase().playerState(pendingConnection.getName());
+                if (state != PlayerState.NO_PREMIUM) {
                     pendingConnection.setOnlineMode(true);
-                    if (configuration.getString("UUIDMode").equalsIgnoreCase("NO_PREMIUM")) {
+                    if (state == PlayerState.PREMIUM && configuration.getString("UUIDMode").equalsIgnoreCase("NO_PREMIUM")) {
                         Utils.setUuid(pendingConnection, offlineUuid);
+                    } else {
+                        cache.setFullPremium(true);
                     }
                     cache.setPremium(true);
                     ProxyServer.getInstance().getPluginManager().callEvent(new NekoConnectionPreLoginEvent(event));
