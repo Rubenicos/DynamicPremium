@@ -43,6 +43,7 @@ AllowedCommands:
 SendLobbyMessage: "&a¡Enviándote al lobby!"
 DeniedCommand: "&c¡Debes estar autentificado para ejecutar este comando!"
 ConnectionCancelled: "&c¡La conexión fue desconectada debido a que eres premium pero no estás autentificado en Mojang!"
+CooldownMessage: "&cDebes esperar &6%seconds% &csegundos!"
 PremiumCommandDelay: 60000 #Millis
 # This is important.
 # PREMIUM (if you change your minecraft name and you have premium uuid, you will have all things that you have in the other name)
