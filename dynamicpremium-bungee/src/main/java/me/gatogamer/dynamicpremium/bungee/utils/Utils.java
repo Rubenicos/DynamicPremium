@@ -5,6 +5,8 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.connection.InitialHandler;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.UUID;
 
@@ -17,17 +19,40 @@ import java.util.UUID;
  */
 @UtilityClass
 public class Utils {
+
+    private static final MethodHandle setUniqueId;
+    private static boolean error = false;
+
+    static {
+        MethodHandle set$uniqueId = null;
+        try {
+            MethodHandles.Lookup lookup = MethodHandles.lookup();
+            Field field = InitialHandler.class.getDeclaredField("uniqueId");
+            field.setAccessible(true);
+            set$uniqueId = lookup.unreflectSetter(field);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        setUniqueId = set$uniqueId;
+    }
+
     public String colorize(String s){
         return ChatColor.translateAlternateColorCodes('&', s);
     }
 
     public void setUuid(PendingConnection pendingConnection, UUID uuid) {
+        // Not override floodgate uuids
+        if (pendingConnection.getUniqueId() != null && pendingConnection.getUniqueId().toString().startsWith("00000000-0000-0000")) {
+            return;
+        }
         try {
-            Field field = InitialHandler.class.getDeclaredField("uniqueId");
-            field.setAccessible(true);
-            field.set(pendingConnection, uuid);
-        } catch (NoSuchFieldException | IllegalAccessException noSuchFieldException) {
-            noSuchFieldException.printStackTrace();
+            setUniqueId.invoke(pendingConnection, uuid);
+        } catch (Throwable t) {
+            if (!error) {
+                error = true;
+                t.printStackTrace();
+            }
+            pendingConnection.setUniqueId(uuid);
         }
     }
 }

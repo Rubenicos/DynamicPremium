@@ -27,9 +27,9 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class PreConnectionListener implements Listener {
     private final DynamicPremium dynamicPremium;
-    private final Pattern allowedNickCharacters = Pattern.compile("[a-zA-Z0-9_]*");
+    private final Pattern allowedNickCharacters = Pattern.compile("\\w*");
 
-    @EventHandler(priority = -64)
+    @EventHandler(priority = -63)
     public void onPreLoginEvent(PreLoginEvent event) {
         if (event.getConnection() == null || event.isCancelled() || !event.getConnection().isConnected() || event.getConnection().getName() == null) {
             event.setCancelReason("Error while processing your connection.");
@@ -42,8 +42,14 @@ public class PreConnectionListener implements Listener {
         cache.updateUsage();
 
         if (!allowedNickCharacters.matcher(pendingConnection.getName()).matches()) {
-            event.setCancelReason("Invalid nickname detected.");
-            event.setCancelled(true);
+            cache.setPendingVerification(false);
+            cache.setOnVerification(false);
+            cache.setPremium(false);
+            cache.setFullPremium(false);
+            if (pendingConnection.getName().length() == 1 || !allowedNickCharacters.matcher(pendingConnection.getName().substring(1)).matches()) {
+                event.setCancelReason("Invalid nickname detected.");
+                event.setCancelled(true);
+            }
             return;
         }
 
