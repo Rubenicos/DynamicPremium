@@ -37,7 +37,7 @@ public class FullPremiumCommand extends Command {
             ProxiedPlayer player = (ProxiedPlayer) sender;
 
             final long time = System.currentTimeMillis();
-            if (cooldown.containsKey(player.getName())) {
+            if (!confirm.contains(player.getName()) && cooldown.containsKey(player.getName())) {
                 final long playerTime = cooldown.get(player.getName());
                 if (playerTime > time) {
                     final long seconds = (playerTime - time) / 1000;
