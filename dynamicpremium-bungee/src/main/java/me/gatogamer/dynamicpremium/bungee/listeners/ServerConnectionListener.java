@@ -2,12 +2,14 @@ package me.gatogamer.dynamicpremium.bungee.listeners;
 
 import lombok.RequiredArgsConstructor;
 import me.gatogamer.dynamicpremium.bungee.DynamicPremium;
-import me.gatogamer.dynamicpremium.bungee.config.ConfigUtils;
 import me.gatogamer.dynamicpremium.commons.cache.Cache;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.event.ServerConnectedEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.event.EventHandler;
@@ -46,6 +48,23 @@ public class ServerConnectionListener implements Listener {
                     proxiedPlayer.disconnect(message); // disconnect because they don't have any server to connect to.
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onServerConnected(ServerConnectedEvent e) {
+        final Configuration settings = DynamicPremium.getInstance().getMainSettings();
+        final String host = settings.getString("PremiumVerifyServer", "false");
+        if (!host.equalsIgnoreCase("false") && e.getServer() != null && e.getServer().getInfo().getName().equals(host)) {
+            final ProxiedPlayer player = e.getPlayer();
+            ProxyServer.getInstance().getScheduler().runAsync(DynamicPremium.getInstance(), () -> {
+                if (player.isConnected() && player.getServer().getInfo().getName().equals(host)) {
+                    Cache cache = dynamicPremium.getCacheManager().getOrCreateCache(player.getName());
+                    player.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', settings.getString("Alert.Checking").replace("/premium", "/fullpremium"))));
+                    cache.setPendingVerification(true);
+                    cache.setFullPremium(true);
+                }
+            });
         }
     }
 }
