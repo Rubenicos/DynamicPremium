@@ -1,6 +1,7 @@
 package me.gatogamer.dynamicpremium.bungee.utils;
 
 import lombok.experimental.UtilityClass;
+import me.gatogamer.dynamicpremium.commons.utils.UUIDUtils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.connection.InitialHandler;
@@ -42,7 +43,7 @@ public class Utils {
 
     public void setUuid(PendingConnection pendingConnection, UUID uuid) {
         // Not override floodgate uuids
-        if (pendingConnection.getUniqueId() != null && pendingConnection.getUniqueId().toString().startsWith("00000000-0000-0000")) {
+        if (UUIDUtils.isXboxId(pendingConnection.getUniqueId())) {
             return;
         }
         try {

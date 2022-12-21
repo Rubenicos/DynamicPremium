@@ -33,6 +33,7 @@ access-only-if-player-is-premium-message: |-
   &7You have no access to the server because you're not premium.
   &7&l&m------------------------------------------------
 
+FloodgateAuthBypass: false
 PremiumVerifyServer: false
 AuthServers:
   - "al1"

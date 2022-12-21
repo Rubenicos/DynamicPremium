@@ -42,6 +42,10 @@ public class UUIDUtils {
         return getOnlineUUID(name) != null;
     }
 
+    public static boolean isXboxId(UUID uuid) {
+        return uuid != null && uuid.toString().startsWith("00000000-0000-0000");
+    }
+
     private static void computeUUID(String name) {
         try (InputStream in = new URL(USER_API + name).openStream(); BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             final StringBuilder out = new StringBuilder();

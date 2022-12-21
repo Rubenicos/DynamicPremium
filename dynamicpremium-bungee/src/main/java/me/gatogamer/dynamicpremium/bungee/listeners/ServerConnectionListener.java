@@ -3,6 +3,7 @@ package me.gatogamer.dynamicpremium.bungee.listeners;
 import lombok.RequiredArgsConstructor;
 import me.gatogamer.dynamicpremium.bungee.DynamicPremium;
 import me.gatogamer.dynamicpremium.commons.cache.Cache;
+import me.gatogamer.dynamicpremium.commons.utils.UUIDUtils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -32,7 +33,7 @@ public class ServerConnectionListener implements Listener {
         Cache cache = dynamicPremium.getCacheManager().getOrCreateCache(proxiedPlayer.getName());
         cache.updateUsage();
 
-        if (cache.isPremium()) {
+        if (cache.isPremium() || (UUIDUtils.isXboxId(proxiedPlayer.getUniqueId()) && settings.getBoolean("FloodgateAuthBypass", false))) {
             ServerInfo newTarget = DynamicPremium.getInstance().getLobbySelector().getLobby(settings, proxiedPlayer);
             if (settings.getStringList("AuthServers").contains(e.getTarget().getName())) {
                 e.setTarget(newTarget);
