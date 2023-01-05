@@ -18,10 +18,22 @@ import java.util.Properties;
 @Setter
 public class MySQLDatabase implements Database {
 
-    private Connection connection;
+    private Connection connection = null;
 
     @Override
     public void loadDatabase(IConfigParser iConfigParser, DatabaseManager databaseManager) {
+        if (connection != null) {
+            try {
+                if (connection.isClosed()) {
+                    System.out.println("DynamicPremium > MySQL connection is already closed");
+                } else {
+                    System.out.println("DynamicPremium > Closing current MySQL connection");
+                    connection.close();
+                }
+            } catch (Throwable ignored) { }
+            connection = null;
+            System.out.println("DynamicPremium > Reconnecting to MySQL...");
+        }
         try {
             Class.forName("com.mysql.jdbc.Driver");
             Properties properties = new Properties();

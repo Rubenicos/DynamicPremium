@@ -9,8 +9,8 @@ import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.config.Configuration;
 
 public class AdminCommand extends Command {
-    public AdminCommand(String name) {
-        super(name);
+    public AdminCommand(String name, String... aliases) {
+        super(name, null, aliases);
     }
 
     @Override
@@ -22,8 +22,12 @@ public class AdminCommand extends Command {
         }
 
         if (args.length < 2) {
-            for (String msg : mainSettings.getStringList("Admin.Usage")) {
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
+            if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
+                DynamicPremium.getInstance().onReload();
+            } else {
+                for (String msg : mainSettings.getStringList("Admin.Usage")) {
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
+                }
             }
             return;
         }

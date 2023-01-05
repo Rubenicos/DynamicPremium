@@ -12,9 +12,11 @@ import java.io.File;
 @Setter
 public class DatabaseManager {
     private Database database;
+    private final IConfigParser iConfigParser;
     private final File dataFolder;
 
     public DatabaseManager(IConfigParser iConfigParser, File dataFolder) {
+        this.iConfigParser = iConfigParser;
         this.dataFolder = dataFolder;
 
         String databaseType = iConfigParser.getString("DatabaseType");
@@ -27,6 +29,10 @@ public class DatabaseManager {
             database = new FlatfileDatabase();
         }
 
+        reload();
+    }
+
+    public void reload() {
         database.loadDatabase(iConfigParser, this);
     }
 }

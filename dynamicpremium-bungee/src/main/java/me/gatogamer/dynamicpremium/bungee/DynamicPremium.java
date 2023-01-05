@@ -54,7 +54,7 @@ public final class DynamicPremium extends Plugin {
         ProxyServer.getInstance().getConsole().sendMessage(Utils.colorize("&cDynamicPremium &8> &7Loading commands"));
         getProxy().getPluginManager().registerCommand(this, new PremiumCommand("premium"));
         getProxy().getPluginManager().registerCommand(this, new FullPremiumCommand("fullpremium"));
-        getProxy().getPluginManager().registerCommand(this, new AdminCommand("premiumadmin"));
+        getProxy().getPluginManager().registerCommand(this, new AdminCommand("premiumadmin", "dynamicpremium", "dpremium"));
         ProxyServer.getInstance().getConsole().sendMessage(Utils.colorize("&cDynamicPremium &8> &7Commands loaded"));
 
         lobbySelector = new LobbySelector();
@@ -81,5 +81,9 @@ public final class DynamicPremium extends Plugin {
         }), 500L, TimeUnit.MILLISECONDS);
 
         ProxyServer.getInstance().getConsole().sendMessage(Utils.colorize("&cDynamicPremium &8> &7DynamicPremium has been loaded"));
+    }
+
+    public void onReload() {
+        databaseManager.reload();
     }
 }
