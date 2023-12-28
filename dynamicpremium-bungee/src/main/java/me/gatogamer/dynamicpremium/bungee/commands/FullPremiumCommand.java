@@ -60,6 +60,7 @@ public class FullPremiumCommand extends Command {
                 if (state == PlayerState.FULL_PREMIUM) {
                     player.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', mainSettings.getString("Alert.Disabled"))));
                     database.removePlayer(player.getName());
+                    DynamicPremium.getInstance().getWebhookNoPremium().send(s -> s.replace("%player%", player.getName()));
                 } else if (!UUIDUtils.isPremium(player.getName())) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', mainSettings.getString("Alert.NoPremium")));
                 } else if (!confirm.contains(player.getName())) {

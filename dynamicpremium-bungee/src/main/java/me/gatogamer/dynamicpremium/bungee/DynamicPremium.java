@@ -19,6 +19,7 @@ import me.gatogamer.dynamicpremium.bungee.lobby.LobbySelector;
 import me.gatogamer.dynamicpremium.bungee.utils.Utils;
 import me.gatogamer.dynamicpremium.commons.cache.CacheManager;
 import me.gatogamer.dynamicpremium.commons.database.DatabaseManager;
+import me.gatogamer.dynamicpremium.commons.utils.TinyWebhook;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
@@ -37,6 +38,11 @@ public final class DynamicPremium extends Plugin {
     private ConfigUtils configUtils;
     private DatabaseManager databaseManager;
     private LobbySelector lobbySelector;
+
+    private TinyWebhook tinyWebhook;
+    private TinyWebhook.Message webhookPremium;
+    private TinyWebhook.Message webhookNoPremium;
+    private TinyWebhook.Message webhookFullPremium;
 
     @Override
     public void onEnable() {
@@ -67,6 +73,7 @@ public final class DynamicPremium extends Plugin {
         getProxy().getPluginManager().registerListener(this, new ServerConnectionListener(this));
         ProxyServer.getInstance().getConsole().sendMessage(Utils.colorize("&cDynamicPremium &8> &7Listeners loaded"));
 
+        loadWebhook();
 
         ProxyServer.getInstance().getConsole().sendMessage(Utils.colorize("&cDynamicPremium &8> &7Loading database."));
         databaseManager = new DatabaseManager(new BungeeConfigParser(mainSettings), getDataFolder());
@@ -84,6 +91,31 @@ public final class DynamicPremium extends Plugin {
     }
 
     public void onReload() {
-        databaseManager.reload();
+        ConfigCreator.get().setupBungee(this, "Settings");
+        ConfigCreator.get().setupBungee(this, "PremiumUsers");
+        mainSettings = ConfigUtils.getConfig(this, "Settings");
+        loadWebhook();
+        databaseManager.reload(new BungeeConfigParser(mainSettings));
+        ProxyServer.getInstance().getConsole().sendMessage(Utils.colorize("&cDynamicPremium &8> &7DynamicPremium has been reloaded"));
+    }
+
+    private void loadWebhook() {
+        final String url = mainSettings.getString("Webhook.Url", "");
+        final String username = mainSettings.getString("Webhook.Username");
+        final String avatarUrl = mainSettings.getString("Webhook.AvatarUrl");
+        final boolean tts = mainSettings.getBoolean("Webhook.Tts", false);
+        tinyWebhook = new TinyWebhook(url, username, avatarUrl, tts);
+        webhookPremium = tinyWebhook.msg(mainSettings.getString("Webhook.Premium.Content", ""))
+                .username(mainSettings.getString("Webhook.Premium.Username"))
+                .avatarUrl(mainSettings.getString("Webhook.Premium.AvatarUrl"))
+                .tts(mainSettings.getBoolean("Webhook.Premium.Tts", false));
+        webhookNoPremium = tinyWebhook.msg(mainSettings.getString("Webhook.NoPremium.Content", ""))
+                .username(mainSettings.getString("Webhook.NoPremium.Username"))
+                .avatarUrl(mainSettings.getString("Webhook.NoPremium.AvatarUrl"))
+                .tts(mainSettings.getBoolean("Webhook.NoPremium.Tts", false));
+        webhookFullPremium = tinyWebhook.msg(mainSettings.getString("Webhook.FullPremium.Content", ""))
+                .username(mainSettings.getString("Webhook.FullPremium.Username"))
+                .avatarUrl(mainSettings.getString("Webhook.FullPremium.AvatarUrl"))
+                .tts(mainSettings.getBoolean("Webhook.FullPremium.Tts", false));
     }
 }
