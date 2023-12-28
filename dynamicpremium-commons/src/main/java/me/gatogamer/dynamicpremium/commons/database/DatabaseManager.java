@@ -29,7 +29,7 @@ public class DatabaseManager {
             database = new FlatfileDatabase();
         }
 
-        reload();
+        reload(iConfigParser);
     }
 
     public void reload(IConfigParser iConfigParser) {

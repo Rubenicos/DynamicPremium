@@ -37,24 +37,32 @@ public class TinyWebhook {
 
         StringJoiner joiner = new StringJoiner(", ", "{", "}");
         joiner.add("\"content\": \"" + message.getContent() + '"');
-        if (message.getUsername() != null) {
+        if (message.getUsername() != null && !message.getUsername().isEmpty()) {
             joiner.add("\"username\": \"" + message.getUsername() + '"');
         }
-        if (message.getAvatarUrl() != null) {
+        if (message.getAvatarUrl() != null && !message.getAvatarUrl().trim().isEmpty()) {
             joiner.add("\"avatar_url\": \"" + message.getAvatarUrl() + '"');
         }
         joiner.add("\"tts\": \"" + message.isTts() + '"');
+
+        send(joiner.toString());
+    }
+
+    public void send(@NotNull String msg) {
+        if (url == null || url.trim().isEmpty()) {
+            return;
+        }
 
         try {
             URL url = new URL(this.url);
             HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
             connection.addRequestProperty("Content-Type", "application/json");
-            connection.addRequestProperty("User-Agent", "ProxyBroadcast-Plugin");
+            connection.addRequestProperty("User-Agent", "Mozilla/5.0");
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
 
             OutputStream stream = connection.getOutputStream();
-            stream.write(joiner.toString().getBytes(StandardCharsets.UTF_8));
+            stream.write(msg.getBytes(StandardCharsets.UTF_8));
             stream.flush();
             stream.close();
 

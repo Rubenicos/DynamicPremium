@@ -38,7 +38,7 @@ public class AdminCommand extends Command {
                     ProxyServer.getInstance().getScheduler().runAsync(DynamicPremium.getInstance(), () -> {
                         String name = args[1];
                         PlayerState state = DynamicPremium.getInstance().getDatabaseManager().getDatabase().playerState(name);
-                        sender.sendMessage("§aEl estado actual del jugador §f" + name + " §a es: §f" + state);
+                        sender.sendMessage("§aEl estado actual del jugador §f" + name + "§a es: §f" + state);
                     });
                 } else {
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&', mainSettings.getString("Admin.No Permission")));
