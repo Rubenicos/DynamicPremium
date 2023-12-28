@@ -33,6 +33,17 @@ public class AdminCommand extends Command {
         }
 
         switch (args[0].toLowerCase()) {
+            case "state":
+                if (sender.hasPermission("dynamicpremium.state")) {
+                    ProxyServer.getInstance().getScheduler().runAsync(DynamicPremium.getInstance(), () -> {
+                        String name = args[1];
+                        PlayerState state = DynamicPremium.getInstance().getDatabaseManager().getDatabase().playerState(name);
+                        sender.sendMessage("§aEl estado actual del jugador §f" + name + " §a es: §f" + state);
+                    });
+                } else {
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', mainSettings.getString("Admin.No Permission")));
+                }
+                break;
             case "toggle":
             case "premium":
                 if (sender.hasPermission("dynamicpremium.toggle")) {
