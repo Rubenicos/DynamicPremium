@@ -3,7 +3,7 @@ package me.gatogamer.dynamicpremium.bungee.lobby;
 import lombok.RequiredArgsConstructor;
 import me.gatogamer.dynamicpremium.bungee.DynamicPremium;
 import me.gatogamer.dynamicpremium.bungee.utils.ServerDataAsker;
-import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 
 import java.util.Comparator;
@@ -46,7 +46,7 @@ public class ForcedLobbies {
 
     public int getMaxPlayersFor(ServerInfo serverInfo) {
         return players.computeIfAbsent(serverInfo, serverInfo1 -> {
-            BungeeCord.getInstance().getScheduler().runAsync(DynamicPremium.getInstance(), () -> { // make the request async, to prevent lag.
+            ProxyServer.getInstance().getScheduler().runAsync(DynamicPremium.getInstance(), () -> { // make the request async, to prevent lag.
                 serverInfo1.ping((serverPing, error) -> players.put(serverInfo, serverPing.getPlayers().getMax()));
             });
 
