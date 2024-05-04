@@ -88,6 +88,15 @@ Admin:
 # IMPORTANT: Premium users are just users that have the /premium mode enabled.
 LoginType: DIRECT #Modes available: DIRECT, FIRST_DEFAULT
 
+Webhook:
+  Url: ''
+  Premium:
+    Content: 'El estado del jugador **%player%** ha sido cambiado a **Premium**'
+  NoPremium:
+    Content: 'El estado del jugador **%player%** ha sido cambiado a **No Premium**'
+  FullPremium:
+    Content: 'El estado del jugador **%player%** ha sido cambiado a **Full Premium**'
+
 #Database type.
 #Database types available: FLATFILE, MYSQL
 DatabaseType: FLATFILE

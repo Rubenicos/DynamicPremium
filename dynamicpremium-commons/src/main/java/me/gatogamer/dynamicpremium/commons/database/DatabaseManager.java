@@ -12,7 +12,7 @@ import java.io.File;
 @Setter
 public class DatabaseManager {
     private Database database;
-    private final IConfigParser iConfigParser;
+    private IConfigParser iConfigParser;
     private final File dataFolder;
 
     public DatabaseManager(IConfigParser iConfigParser, File dataFolder) {
@@ -29,10 +29,11 @@ public class DatabaseManager {
             database = new FlatfileDatabase();
         }
 
-        reload();
+        reload(iConfigParser);
     }
 
-    public void reload() {
-        database.loadDatabase(iConfigParser, this);
+    public void reload(IConfigParser iConfigParser) {
+        this.iConfigParser = iConfigParser;
+        database.loadDatabase(this.iConfigParser, this);
     }
 }

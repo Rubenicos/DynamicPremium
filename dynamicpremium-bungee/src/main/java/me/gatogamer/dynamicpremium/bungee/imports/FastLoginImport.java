@@ -52,6 +52,7 @@ public class FastLoginImport {
                         if (rs.getInt("Premium") == 1) {
                             ProxyServer.getInstance().getConsole().sendMessage(c("&cFastLogin Import -> &7Yes, "+name+ " is premium."));
                             DynamicPremium.getInstance().getDatabaseManager().getDatabase().updatePlayer(name);
+                            DynamicPremium.getInstance().getWebhookPremium().send(s -> s.replace("%player%", name));
                             ProxyServer.getInstance().getConsole().sendMessage(c("&cFastLogin Import -> "+name+ " has been added."));
                         } else {
                             ProxyServer.getInstance().getConsole().sendMessage(c("&cFastLogin Import -> &7Nop, "+name+ " isn't premium."));

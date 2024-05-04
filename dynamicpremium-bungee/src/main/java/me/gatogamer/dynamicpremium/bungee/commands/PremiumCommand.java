@@ -54,6 +54,7 @@ public class PremiumCommand extends Command {
                 if (state == PlayerState.PREMIUM) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', mainSettings.getString("Alert.Disabled")));
                     database.removePlayer(player.getName());
+                    DynamicPremium.getInstance().getWebhookNoPremium().send(s -> s.replace("%player%", player.getName()));
                 } else if (!UUIDUtils.isPremium(player.getName())) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', mainSettings.getString("Alert.NoPremium")));
                 } else {

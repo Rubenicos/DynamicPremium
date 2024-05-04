@@ -40,8 +40,15 @@ public class PostConnectionListener implements Listener {
             cache.setOnVerification(false);
             cache.setPendingVerification(false);
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', mainSettings.getString("Alert.Enabled")));
-            NyaUtils.run(() -> dynamicPremium.getDatabaseManager().getDatabase().updatePlayer(player.getName(),
-                    cache.isFullPremium() ? PlayerState.FULL_PREMIUM : PlayerState.PREMIUM));
+            NyaUtils.run(() -> {
+                if (cache.isFullPremium()) {
+                    dynamicPremium.getDatabaseManager().getDatabase().updatePlayer(player.getName(), PlayerState.FULL_PREMIUM);
+                    dynamicPremium.getWebhookFullPremium().send(s -> s.replace("%player%", player.getName()));
+                } else {
+                    dynamicPremium.getDatabaseManager().getDatabase().updatePlayer(player.getName(), PlayerState.PREMIUM);
+                    dynamicPremium.getWebhookPremium().send(s -> s.replace("%player%", player.getName()));
+                }
+            });
         }
         NekoConnectionFinishedEvent nekoConnectionFinishedEvent = new NekoConnectionFinishedEvent(
                 player, dynamicPremium.getLobbySelector().getForcedHostFor(player), cache.isPremium()
