@@ -18,6 +18,19 @@ import java.util.Properties;
 @Setter
 public class MySQLDatabase implements Database {
 
+    private static final String DRIVER;
+
+    static {
+        String driver;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            driver = "com.mysql.cj.jdbc.Driver";
+        } catch (ClassNotFoundException e) {
+            driver = "com.mysql.jdbc.Driver";
+        }
+        DRIVER = driver;
+    }
+
     private Connection connection = null;
 
     @Override
@@ -35,7 +48,7 @@ public class MySQLDatabase implements Database {
             System.out.println("DynamicPremium > Reconnecting to MySQL...");
         }
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName(DRIVER);
             Properties properties = new Properties();
             properties.setProperty("user", iConfigParser.getString("MySQL.Username"));
             properties.setProperty("password", iConfigParser.getString("MySQL.Password"));
@@ -49,15 +62,28 @@ public class MySQLDatabase implements Database {
             );
 
             connection = DriverManager.getConnection("jdbc:mysql://" + iConfigParser.getString("MySQL.Host") + ":" + iConfigParser.getString("MySQL.Port") + "/" + iConfigParser.getString("MySQL.Database"), properties);
-            update("CREATE TABLE IF NOT EXISTS PremiumUsers (PlayerName VARCHAR(100), Enabled VARCHAR(100))");
-            update("ALTER TABLE PremiumUsers ADD COLUMN Full VARCHAR(100) AFTER Enabled");
-            update("CREATE UNIQUE INDEX premiumIndex ON PremiumUsers (PlayerName, Enabled, Full)");
+            if (!isTablePresent(connection, "PremiumUsers")) {
+                update("CREATE TABLE IF NOT EXISTS PremiumUsers (PlayerName VARCHAR(100), Enabled VARCHAR(100))");
+                update("ALTER TABLE PremiumUsers ADD COLUMN Full VARCHAR(100) AFTER Enabled");
+                update("CREATE UNIQUE INDEX premiumIndex ON PremiumUsers (PlayerName, Enabled, Full)");
+            }
             System.out.println("DynamicPremium > Connected to MySQL!");
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("DynamicPremium > Oh no, I can't connect to MySQL!");
             System.out.println("DynamicPremium > Send this error to gatogamer#6666!");
         }
+    }
+
+    private static boolean isTablePresent(Connection con, String tableName) throws SQLException {
+        try (ResultSet set = con.getMetaData().getTables(con.getCatalog(), null, "%", null)) {
+            while (set.next()) {
+                if (set.getString(3).equalsIgnoreCase(tableName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
