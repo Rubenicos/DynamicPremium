@@ -2,6 +2,9 @@ package me.gatogamer.dynamicpremium.commons.utils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -20,9 +23,6 @@ import java.util.concurrent.TimeUnit;
 public class UUIDUtils {
 
     private static final String USER_API = "https://api.mojang.com/users/profiles/minecraft/";
-    // "id":" <UUID> "
-    private static final String UUID_START = "\"id\":\"";
-    private static final String UUID_END = "\"";
     private static final Cache<String, Object> CACHE = CacheBuilder.newBuilder().expireAfterWrite(5, TimeUnit.MINUTES).build();
 
     public static UUID getOnlineUUID(String name) {
@@ -54,17 +54,14 @@ public class UUIDUtils {
                 out.append(line);
             }
 
-            String s = out.toString();
-            int index = s.indexOf(UUID_START);
-            final int begin;
-            if (index >= 0 && (begin = index + UUID_START.length()) < s.length()) {
-                s = s.substring(begin);
-                index = s.indexOf(UUID_END);
-                if (index > 0) {
-                    s = s.substring(0, index).trim();
-                    if (s.length() == 32) {
+            JsonElement data = JsonParser.parseString(out.toString());
+            if (data instanceof JsonObject) {
+                JsonObject json = (JsonObject) data;
+                if (json.has("id")) {
+                    final String id = json.getAsJsonPrimitive("id").getAsString();
+                    if (id.length() == 32) {
                         // UUID without slashes
-                        CACHE.put(name, UUID.fromString(new StringBuilder(s)
+                        CACHE.put(name, UUID.fromString(new StringBuilder(id)
                                 .insert(20, '-')
                                 .insert(16, '-')
                                 .insert(12, '-')
@@ -72,9 +69,9 @@ public class UUIDUtils {
                                 .toString()
                         ));
                         return;
-                    } else if (s.contains("-") && s.length() == 36) {
+                    } else if (id.contains("-") && id.length() == 36) {
                         // UUID with slashes
-                        CACHE.put(name, UUID.fromString(s));
+                        CACHE.put(name, UUID.fromString(id));
                         return;
                     }
                 }
