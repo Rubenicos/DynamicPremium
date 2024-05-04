@@ -21,20 +21,28 @@ import java.util.UUID;
 @UtilityClass
 public class Utils {
 
-    private static final MethodHandle setUniqueId;
+    private static final MethodHandle SET_UNIQUE_ID;
+    private static final MethodHandle SET_REWRITE_ID;
     private static boolean error = false;
 
     static {
         MethodHandle set$uniqueId = null;
+        MethodHandle set$rewriteId = null;
         try {
-            MethodHandles.Lookup lookup = MethodHandles.lookup();
-            Field field = InitialHandler.class.getDeclaredField("uniqueId");
-            field.setAccessible(true);
-            set$uniqueId = lookup.unreflectSetter(field);
+            final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
+            final Field uniqueId = InitialHandler.class.getDeclaredField("uniqueId");
+            uniqueId.setAccessible(true);
+            set$uniqueId = lookup.unreflectSetter(uniqueId);
+
+            final Field rewriteId = InitialHandler.class.getDeclaredField("rewriteId");
+            rewriteId.setAccessible(true);
+            set$rewriteId = lookup.unreflectSetter(rewriteId);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
-        setUniqueId = set$uniqueId;
+        SET_UNIQUE_ID = set$uniqueId;
+        SET_REWRITE_ID = set$rewriteId;
     }
 
     public String colorize(String s){
@@ -47,7 +55,9 @@ public class Utils {
             return;
         }
         try {
-            setUniqueId.invoke(pendingConnection, uuid);
+            SET_UNIQUE_ID.invoke(pendingConnection, uuid);
+
+            SET_REWRITE_ID.invoke(pendingConnection, uuid);
         } catch (Throwable t) {
             if (!error) {
                 error = true;
