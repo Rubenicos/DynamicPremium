@@ -1,6 +1,7 @@
 package me.gatogamer.dynamicpremium.bungee.commands;
 
 import me.gatogamer.dynamicpremium.bungee.DynamicPremium;
+import me.gatogamer.dynamicpremium.bungee.api.DynamicPremiumAPI;
 import me.gatogamer.dynamicpremium.commons.database.PlayerState;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -37,7 +38,7 @@ public class AdminCommand extends Command {
                 if (sender.hasPermission("dynamicpremium.state")) {
                     ProxyServer.getInstance().getScheduler().runAsync(DynamicPremium.getInstance(), () -> {
                         String name = args[1];
-                        PlayerState state = DynamicPremium.getInstance().getDatabaseManager().getDatabase().playerState(name);
+                        PlayerState state = DynamicPremiumAPI.getState(name);
                         sender.sendMessage("§aEl estado actual del jugador §f" + name + "§a es: §f" + state);
                     });
                 } else {
@@ -49,18 +50,13 @@ public class AdminCommand extends Command {
                 if (sender.hasPermission("dynamicpremium.toggle")) {
                     ProxyServer.getInstance().getScheduler().runAsync(DynamicPremium.getInstance(), () -> {
                         String name = args[1];
-                        PlayerState state = DynamicPremium.getInstance().getDatabaseManager().getDatabase().playerState(name);
-                        if (state == PlayerState.PREMIUM) {
-                            DynamicPremium.getInstance().getDatabaseManager().getDatabase().removePlayer(name);
-                            DynamicPremium.getInstance().getWebhookNoPremium().send(s -> s.replace("%player%", name));
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', mainSettings.getString(
-                                    "Admin.Toggled.Disabled").replaceAll("%player%", args[1])
-                            ));
-                        } else {
-                            DynamicPremium.getInstance().getDatabaseManager().getDatabase().updatePlayer(name, PlayerState.PREMIUM);
-                            DynamicPremium.getInstance().getWebhookPremium().send(s -> s.replace("%player%", name));
+                        if (DynamicPremiumAPI.toggleState(name, PlayerState.PREMIUM, true)) {
                             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', mainSettings.getString(
                                     "Admin.Toggled.Enabled").replaceAll("%player%", args[1])
+                            ));
+                        } else {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', mainSettings.getString(
+                                    "Admin.Toggled.Disabled").replaceAll("%player%", args[1])
                             ));
                         }
                     });
@@ -73,18 +69,13 @@ public class AdminCommand extends Command {
                 if (sender.hasPermission("dynamicpremium.toggle.full")) {
                     ProxyServer.getInstance().getScheduler().runAsync(DynamicPremium.getInstance(), () -> {
                         String name = args[1];
-                        PlayerState state = DynamicPremium.getInstance().getDatabaseManager().getDatabase().playerState(name);
-                        if (state == PlayerState.FULL_PREMIUM) {
-                            DynamicPremium.getInstance().getDatabaseManager().getDatabase().removePlayer(name);
-                            DynamicPremium.getInstance().getWebhookNoPremium().send(s -> s.replace("%player%", name));
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', mainSettings.getString(
-                                    "Admin.Full.Disabled").replaceAll("%player%", args[1])
-                            ));
-                        } else {
-                            DynamicPremium.getInstance().getDatabaseManager().getDatabase().updatePlayer(name, PlayerState.FULL_PREMIUM);
-                            DynamicPremium.getInstance().getWebhookFullPremium().send(s -> s.replace("%player%", name));
+                        if (DynamicPremiumAPI.toggleState(name, PlayerState.FULL_PREMIUM, true)) {
                             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', mainSettings.getString(
                                     "Admin.Full.Enabled").replaceAll("%player%", args[1])
+                            ));
+                        } else {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', mainSettings.getString(
+                                    "Admin.Full.Disabled").replaceAll("%player%", args[1])
                             ));
                         }
                     });

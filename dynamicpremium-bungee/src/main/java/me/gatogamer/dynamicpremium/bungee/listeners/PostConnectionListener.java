@@ -2,6 +2,7 @@ package me.gatogamer.dynamicpremium.bungee.listeners;
 
 import lombok.RequiredArgsConstructor;
 import me.gatogamer.dynamicpremium.bungee.DynamicPremium;
+import me.gatogamer.dynamicpremium.bungee.api.DynamicPremiumAPI;
 import me.gatogamer.dynamicpremium.bungee.api.event.NekoConnectionFinishedEvent;
 import me.gatogamer.dynamicpremium.commons.cache.Cache;
 import me.gatogamer.dynamicpremium.commons.database.PlayerState;
@@ -42,11 +43,9 @@ public class PostConnectionListener implements Listener {
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', mainSettings.getString("Alert.Enabled")));
             NyaUtils.run(() -> {
                 if (cache.isFullPremium()) {
-                    dynamicPremium.getDatabaseManager().getDatabase().updatePlayer(player.getName(), PlayerState.FULL_PREMIUM);
-                    dynamicPremium.getWebhookFullPremium().send(s -> s.replace("%player%", player.getName()));
+                    DynamicPremiumAPI.setState(player, PlayerState.FULL_PREMIUM, true);
                 } else {
-                    dynamicPremium.getDatabaseManager().getDatabase().updatePlayer(player.getName(), PlayerState.PREMIUM);
-                    dynamicPremium.getWebhookPremium().send(s -> s.replace("%player%", player.getName()));
+                    DynamicPremiumAPI.setState(player, PlayerState.PREMIUM, true);
                 }
             });
         }

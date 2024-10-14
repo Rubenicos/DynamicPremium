@@ -1,8 +1,8 @@
 package me.gatogamer.dynamicpremium.bungee.commands;
 
 import me.gatogamer.dynamicpremium.bungee.DynamicPremium;
+import me.gatogamer.dynamicpremium.bungee.api.DynamicPremiumAPI;
 import me.gatogamer.dynamicpremium.commons.cache.Cache;
-import me.gatogamer.dynamicpremium.commons.database.Database;
 import me.gatogamer.dynamicpremium.commons.database.PlayerState;
 import me.gatogamer.dynamicpremium.commons.utils.UUIDUtils;
 import net.md_5.bungee.api.ChatColor;
@@ -55,12 +55,10 @@ public class FullPremiumCommand extends Command {
             Cache cache = DynamicPremium.getInstance().getCacheManager().getOrCreateCache(player.getName());
 
             ProxyServer.getInstance().getScheduler().runAsync(DynamicPremium.getInstance(), () -> {
-                Database database = DynamicPremium.getInstance().getDatabaseManager().getDatabase();
-                PlayerState state = database.playerState(player.getName());
+                PlayerState state = DynamicPremiumAPI.getState(player.getName());
                 if (state == PlayerState.FULL_PREMIUM) {
                     player.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', mainSettings.getString("Alert.Disabled"))));
-                    database.removePlayer(player.getName());
-                    DynamicPremium.getInstance().getWebhookNoPremium().send(s -> s.replace("%player%", player.getName()));
+                    DynamicPremiumAPI.setState(player.getName(), PlayerState.NO_PREMIUM, true);
                 } else if (!UUIDUtils.isPremium(player.getName())) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', mainSettings.getString("Alert.NoPremium")));
                 } else if (!confirm.contains(player.getName())) {
