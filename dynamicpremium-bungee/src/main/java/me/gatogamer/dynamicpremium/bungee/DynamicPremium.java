@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.gatogamer.dynamicpremium.bungee.commands.AdminCommand;
 import me.gatogamer.dynamicpremium.bungee.commands.FullPremiumCommand;
+import me.gatogamer.dynamicpremium.bungee.commands.HubCommand;
 import me.gatogamer.dynamicpremium.bungee.commands.PremiumCommand;
 import me.gatogamer.dynamicpremium.bungee.config.BungeeConfigParser;
 import me.gatogamer.dynamicpremium.bungee.config.ConfigCreator;
@@ -24,6 +25,8 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Getter
@@ -37,6 +40,7 @@ public final class DynamicPremium extends Plugin {
     private Configuration mainSettings;
     private ConfigUtils configUtils;
     private DatabaseManager databaseManager;
+    private HubCommand hubCommand;
     private LobbySelector lobbySelector;
 
     private TinyWebhook tinyWebhook;
@@ -61,6 +65,7 @@ public final class DynamicPremium extends Plugin {
         getProxy().getPluginManager().registerCommand(this, new PremiumCommand("premium"));
         getProxy().getPluginManager().registerCommand(this, new FullPremiumCommand("fullpremium"));
         getProxy().getPluginManager().registerCommand(this, new AdminCommand("premiumadmin", "dynamicpremium", "dpremium"));
+        loadHubCommand();
         ProxyServer.getInstance().getConsole().sendMessage(Utils.colorize("&cDynamicPremium &8> &7Commands loaded"));
 
         lobbySelector = new LobbySelector();
@@ -94,9 +99,31 @@ public final class DynamicPremium extends Plugin {
         ConfigCreator.get().setupBungee(this, "Settings");
         ConfigCreator.get().setupBungee(this, "PremiumUsers");
         mainSettings = ConfigUtils.getConfig(this, "Settings");
+        loadHubCommand();
         loadWebhook();
         databaseManager.reload(new BungeeConfigParser(mainSettings));
         ProxyServer.getInstance().getConsole().sendMessage(Utils.colorize("&cDynamicPremium &8> &7DynamicPremium has been reloaded"));
+    }
+
+    private void loadHubCommand() {
+        if (hubCommand != null) {
+            getProxy().getPluginManager().unregisterCommand(hubCommand);
+            hubCommand = null;
+        }
+        String name = null;
+        List<String> alias = new ArrayList<>();
+        for (String cmd : mainSettings.getStringList("LobbyCommands")) {
+            if (name == null) {
+                name = cmd;
+            } else {
+                alias.add(cmd);
+            }
+        }
+        if (name == null) {
+            return;
+        }
+        hubCommand = new HubCommand(name, alias.toArray(new String[0]));
+        getProxy().getPluginManager().registerCommand(this, hubCommand);
     }
 
     private void loadWebhook() {
