@@ -1,11 +1,14 @@
 plugins {
-    id 'net.kyori.blossom' version '1.3.0'
-    id 'com.github.johnrengelman.shadow'
+    id 'com.gradleup.shadow'
+    id 'net.raphimc.class-token-replacer'
 }
 
-blossom {
-    replaceTokenIn('src/main/java/me/gatogamer/dynamicpremium/velocity/DynamicPremium.java')
-    replaceToken '${version}', project.version
+sourceSets {
+    main {
+        classTokenReplacer {
+            property("\${version}", project.version)
+        }
+    }
 }
 
 repositories {
